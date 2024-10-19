@@ -2,7 +2,7 @@ import connect from "@/app/lib/db";
 import User from "@/app/lib/modals/user.modal";
 import { NextResponse } from "next/server"
 import { Types } from "mongoose";
-import { json } from "stream/consumers";
+
 
 const ObjectId = require('mongoose').Types.ObjectId;
 
@@ -90,7 +90,6 @@ export const DELETE = async (request : Request) => {
 
     if(!deletedUser){
         return new NextResponse(JSON.stringify({message: "No user is present to delete with this User Id"}), {status: 400}
-
         )
     }
 
