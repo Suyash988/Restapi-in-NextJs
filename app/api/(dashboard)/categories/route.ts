@@ -5,6 +5,7 @@ import { Types } from "mongoose";
 import Category from "@/app/lib/modals/category.modal";
 
 
+
 export const GET = async (request: Request) => {
   try {
       const { searchParams } = new URL(request.url);
@@ -35,6 +36,39 @@ export const GET = async (request: Request) => {
      return new NextResponse(JSON.stringify(catogories), {status: 200})
 
   } catch (error: any) {
-     return new NextResponse("No categories are found with the given userId", {status: 500})
+     return new NextResponse("No categories are found with the given userId" + error.message, {status: 500})
   }
+}
+
+export const POST = async (request: Request) => {
+    try {
+       const { searchParams } = new URL(request.url);
+       const userId = searchParams.get("userId");
+
+       const {title} = await request.json();
+
+      // checking if the userId is given and of the same Type as of the Object Id
+      if(!userId || !Types.ObjectId.isValid(userId)) { 
+        return new NextResponse(JSON.stringify({message: "Invalid or missing userId"}), {status: 400})
+      } 
+
+      await connect();
+
+      const user = await User.findById(userId);
+
+      if(!user) {
+        return new NextResponse(JSON.stringify({message: "User not found"}), {status: 400})
+      }
+
+      const newCategory = new Category({
+        title,
+        user: new Types.ObjectId(userId),
+      });
+
+      await newCategory.save();
+
+      return new NextResponse(JSON.stringify({message: "Category is created successfully",newCategory}), {status: 200})
+    } catch (error: any) {
+       return new NextResponse("Error in creating category" + error.message, {status: 500}) 
+    }
 }
